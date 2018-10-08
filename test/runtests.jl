@@ -1,5 +1,5 @@
-using Compat.Test
-using Quaternions
+using Test
+using ..Quaternions
 
 test_associative(x, y, z, ⊗) = @test (x ⊗ y) ⊗ z ≈ x ⊗ (y ⊗ z)
 test_commutative(x, y, ⊗) = @test x ⊗ y ≈ y ⊗ x
