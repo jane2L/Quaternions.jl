@@ -89,7 +89,7 @@ function normalize(cq::ComplexQuaternion)
   a = abs(cq)
   if abs(a) > 0
     qa = cq / a
-    Complexquat(qa.qr, qa.qi, true)
+    Cquat(qa.qr, qa.qi, true)
   else
     cq
   end
@@ -102,7 +102,7 @@ function normalizea(cq::ComplexQuaternion)
   a = abs(cq)
   if abs(a) > 0
     qa = cq / a
-    Complexquat(qa.qr, qa.qi, true), a
+    Cquat(qa.qr, qa.qi, true), a
   else
     cq, zero(Complex)
   end
@@ -120,12 +120,12 @@ end
 function exp(cq::ComplexQuaternion)
   se = Complex(cq.qr.s, cq.qi.s)
   se = exp(se)
-  cq = Complexquat(quat(0.0, imag(cq.qr)), quat(0.0, imag(cq.qi)))
+  cq = Cquat(quat(0.0, imag(cq.qr)), quat(0.0, imag(cq.qi)))
   cq, th = normalizea(cq)
   if cq.norm
-    Complexquat(se) * (Complexquat(cos(th)) + cq * Complexquat(sin(th)))
+    Cquat(se) * (Cquat(cos(th)) + cq * Cquat(sin(th)))
   else
-    Complexquat(se)
+    Cquat(se)
   end
 end
 
@@ -137,14 +137,14 @@ function angleaxis(cq::ComplexQuaternion)
   sqr = quat(0.0, s0)
   if abs(abs(qrs) - one(qrs)) == 0
     th = Complex(th0, 0.5 * abs(quat(0, t)))
-    th, Complexquat(sqr)
+    th, Cquat(sqr)
   else
     th = Complex(th0, 0.5 * dot(t, s0))
     s0c1 = cross(s0, t)
     tanth = tan(th0)
     s0c2 = (s0c1 / tanth + t) * 0.5
     sqiv = cross(s0c2, s0)
-    th, Complexquat(sqr, quat(0.0, sqiv))
+    th, Cquat(sqr, quat(0.0, sqiv))
   end
 end
 
@@ -161,12 +161,12 @@ end
 function exp(cq::ComplexQuaternion)
   se = Complex(cq.qr.s, cq.qi.s)
   se = exp(se)
-  cq = Complexquat(quat(0.0, imag(cq.qr)), quat(0.0, imag(cq.qi)))
+  cq = Cquat(quat(0.0, imag(cq.qr)), quat(0.0, imag(cq.qi)))
   cq, th = normalizea(cq)
   if cq.norm
-    Complexquat(se) * (Complexquat(cos(th)) + cq * Complexquat(sin(th)))
+    Cquat(se) * (Cquat(cos(th)) + cq * Cquat(sin(th)))
   else
-    Complexquat(se)
+    Cquat(se)
   end
 end
 
@@ -174,7 +174,7 @@ function log(cq::ComplexQuaternion)
   cq, a = normalizea(cq)
   sl = log(a)
   th, s = angleaxis(cq)
-  s * Complexquat(th) + Complexquat(sl)
+  s * Cquat(th) + Cquat(sl)
 end
 
 (^)(cq::ComplexQuaternion, cw::ComplexQuaternion) = exp(cw * log(cq))
@@ -183,5 +183,5 @@ function sqrt(cq::ComplexQuaternion)
   exp(0.5 * log(cq))
 end
 
-Complexquatrand() = Complexquat(quatrand(), quatrand())
-nComplexquatrand() = normalize(Complexquatrand())
+Cquatrand() = Cquat(quatrand(), quatrand())
+nCquatrand() = normalize(Cquatrand())

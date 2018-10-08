@@ -2,19 +2,22 @@ __precompile__()
 
 module Quaternions
 
-  using Compat
-
   import Base: +, -, *, /, ^
   import Base: abs, abs2, angle, conj, cos, exp, inv, isfinite, log, real, sin, sqrt
   import Base: convert, promote_rule
-  import Compat.LinearAlgebra: norm, normalize
+  import LinearAlgebra: norm, normalize,dot,cross
 
   include("Quaternion.jl")
   include("Octonion.jl")
   include("DualQuaternion.jl")
+  include("ComplexQuaternion.jl")
 
   export Quaternion
   export quat
+  export ComplexQuaternion
+  export Cquat
+  export snorm
+  export snorm2
   export Octonion
   export octo
   export DualQuaternion
