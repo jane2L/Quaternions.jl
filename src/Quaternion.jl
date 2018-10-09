@@ -95,9 +95,10 @@ end
                                                q.norm && w.norm)
 (/)(q::Quaternion, w::Quaternion) = q * inv(w)
 
-angleaxis(q::Quaternion) = angle(q), axis(q)
-
 angle(q::Quaternion) = 2 * atan(√(q.v1^2 + q.v2^2 + q.v3^2), q.s)
+
+eulerAngle(q::Quaternion) = angle(q)/2
+
 
 function axis(q::Quaternion)
     q = normalize(q)
@@ -106,6 +107,8 @@ function axis(q::Quaternion)
         [q.v1, q.v2, q.v3] / s :
         [1.0, 0.0, 0.0]
 end
+
+angleaxis(q::Quaternion) = angle(q), axis(q)
 
 argq(q::Quaternion) = normalizeq(Quaternion(0, q.v1, q.v2, q.v3))
 
@@ -142,6 +145,53 @@ function cos(q::Quaternion)
     L = argq(q)
     return (exp(L * q) + exp(-L * q)) / 2
 end
+
+
+# ** ADDED ** trigonometric functions and inverse functions.
+# Source: Real Quaternionic Calculus Handbook
+
+function tan(q::Quaternion)
+    return (sin(q)/cos(q))
+end
+
+
+function sinh(q::Quaternion)
+    return ((exp(q) - exp(-q))/2)
+end
+
+function cosh(q::Quaternion)
+    return (((exp(q) + exp(-q))/2))
+end
+
+function asinh(q::Quaternion)
+    return (log(q+sqrt(q^2+1)))
+end
+
+function acosh(q::Quaternion)
+    return (log(q + sqrt(q^2 - 1)))
+end
+
+function atanh(q::Quaternion)
+    return ((log(1+q) - log(1-q))/2)
+end
+
+function asin(q::Quaternion)
+    p = argq(q) # argq(q) denoted sgn(q) in the Handbook
+    return (p*asinh(q*p))
+end
+
+function acos(q::Quaternion)
+    p =argq(q)
+    return (p*acosh(q))
+end
+
+function atan(q::Quaternion)
+    p = argq(q)
+    return (p*atanh(q*p))
+
+# ** END TRIGONOMETRIC ADDITION **
+
+function a
 
 (^)(q::Quaternion, w::Quaternion) = exp(w * log(q))
 
