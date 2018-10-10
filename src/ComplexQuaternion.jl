@@ -6,6 +6,8 @@ struct ComplexQuaternion{T<:Real} <: Number
   norm::Bool
 end
 
+
+
 ComplexQuaternion(qr::Quaternion, qi::Quaternion, n::Bool = false) =
   ComplexQuaternion(promote(qr, qi)..., n)
 
@@ -20,6 +22,9 @@ ComplexQuaternion(c::Complex) = ComplexQuaternion(c, zero(c), zero(c), zero(c), 
 ComplexQuaternion(q::Quaternion) = ComplexQuaternion(q, zero(q), q.norm)
 
 ComplexQuaternion(a::Vector) = ComplexQuaternion(zero(Quaternion{typeof(a[1])}), Quaternion(a))
+
+# Creating the pseudo-scalar I
+const I = ComplexQuaternion(Quaternion(0,0,0,0),Quaternion(1,0,0,0))
 
 convert(::Type{ComplexQuaternion{T}}, x::Real) where {T} =
     ComplexQuaternion(convert(Quaternion{T}, x), convert(Quaternion{T}, 0))
@@ -76,11 +81,61 @@ conj(cq::ComplexQuaternion) = ComplexQuaternion(conj(cq.qr), conj(cq.qi), cq.nor
 complexconj(cq::ComplexQuaternion) = ComplexQuaternion(cq.qr, -cq.qi, cq.norm)
 reversioninvolution(cq::ComplexQuaternion) = ComplexQuaternion(cq.c1,-cq.c2,-cq.c3,cq.c4) # TO CHECK # TO RENAME
 
-snorm2(cq::ComplexQuaternion) = cq.norm ? Complex(one(cq.qr.s)) : cq*conj(cq)
-snorm(cq::ComplexQuaternion) = cq.norm ? Complex(one(cq.qr.s)) : sqrt(snorm2(cq))
+function snorm2(cq::ComplexQuaternion) # Returns a complex
+     if cq.norm
+         return Complex(one(cq.qr.s))
+     else
+      sn = cq*conj(cq)
+      return(Complex(sn.qr.s,sn.qi.s))
+  end
+
+snorm(cq::ComplexQuaternion) = cq.norm ? Complex(one(cq.qr.s)) : Complex(sqrt(snorm2(cq)))
 
 
 inv(cq::ComplexQuaternion) = (snorm2(cq) != 0) ? conj(cq) / snorm2(cq) : error("Not inversible")
+
+scalar(cq:ComplexQuaternion) = (ComplexQuaternion(c1(cq),0,0,0))
+vector(cq:ComplexQuaternion) = (ComplexQuaternion(0,c1(cq),c2(cq),c3(cq)))
+
+
+function complexForm(cq::ComplexQuaternion)
+    a = scalar(cq)
+    V = vector(cq)
+    b = snorm(V)
+    xi = V/b
+    return(a,xi,b)
+end
+
+function complexFormAxis(cq::ComplexQuaternion)
+    V = vector(cq)
+    b = snorm(V)
+    xi = V/b
+    return(xi)
+end
+
+function hamiltonPolarForm(cq::ComplexQuaternion)
+    a,xi,b = ComplexForm(cq)
+    if abs(a) > 0
+        theta = atan(b/a)
+    else
+        theta = pi/2  # TODO chek the notation pi (works in the terminal)
+    R = snorm(cq)
+    return(R,xi,theta)
+end
+
+function complexPolarForm(cq::ComplexQuaternion)
+    if abs2(snorm2(cq.qr)) > 0
+        angle = 1/cq.qr*cq.qi
+        psi = atan(Quaternion(angle))
+        Q = q*exp(-I*psi)
+        return (Q,psi)
+    else
+        #TODO
+
+end
+
+
+
 
 function normalize(cq::ComplexQuaternion)
   if (cq.norm)
@@ -89,11 +144,21 @@ function normalize(cq::ComplexQuaternion)
   a = abs(cq)
   if abs(a) > 0
     qa = cq / a
-    Cquat(qa.qr, qa.qi, true)
+    return Complexquat(qa.qr, qa.qi, true)
   else
-    cq
+    return cq
   end
 end
+
+function snormalize(cq::ComplexQuaternion)
+    a = snorm(cq)
+    if abs2(snorm(a)) > 0
+      qa = cq / a
+      return (Complexquat(qa.qr, qa.qi))
+    else
+      cq
+    end
+  end
 
 function normalizea(cq::ComplexQuaternion)
   if (cq.norm)
@@ -102,11 +167,21 @@ function normalizea(cq::ComplexQuaternion)
   a = abs(cq)
   if abs(a) > 0
     qa = cq / a
-    Cquat(qa.qr, qa.qi, true), a
+    return (Complexquat(qa.qr, qa.qi, true), a)
   else
-    cq, zero(Complex)
+    return (cq, zero(Complex))
   end
 end
+
+function snormalizea(cq::ComplexQuaternion)
+    a = snorm(cq)
+    if abs2(a) > 0
+        qa = cq/a
+        return (Complexquat(qa.qr,qa.qi),a)
+    else
+        return (cq,zero(Complex))
+
+
 
 (-)(cq::ComplexQuaternion) = ComplexQuaternion(-cq.qr, -cq.qi, cq.norm)
 
@@ -114,67 +189,71 @@ end
 (-)(cq::ComplexQuaternion, cw::ComplexQuaternion) = ComplexQuaternion(cq.qr - cw.qr, cq.qi - cw.qi)
 (*)(cq::ComplexQuaternion, cw::ComplexQuaternion) = ComplexQuaternion(cq.qr * cw.qr - cq.qi*cw.qi,
                                                               cq.qi * cw.qr + cq.qr * cw.qi,
-                                                              cq.norm && cw.norm)   # TO CHECK: condition for norm of the product to be one
+                                                              cq.norm && cw.norm)
 (/)(cq::ComplexQuaternion, cw::ComplexQuaternion) = cq * inv(cw)
 
+
+function arg(cq::ComplexQuaternion) # argument according to Chappell definition
+    Z = scalar(cq)
+    F = vector(cq)
+    phi = atan(Complex(snorm(F))/Complex(Z))
+    return phi
+end
+
+# function angleaxis(cq::ComplexQuaternion)
+#   tq = cq.qi * conj(cq.qr)
+#   t = [2.0 * tq.v1, 2.0 * tq.v2, 2.0 * tq.v3]
+#   qrs = cq.qr.s
+#   th0, s0 = angleaxis(cq.qr)
+#   sqr = quat(0.0, s0)
+#   if abs(abs(qrs) - one(qrs)) == 0
+#     th = Complex(th0, 0.5 * abs(quat(0, t)))
+#     th, Complexquat(sqr)
+#   else
+#     th = Complex(th0, 0.5 * dot(t, s0))
+#     s0c1 = cross(s0, t)
+#     tanth = tan(th0)
+#     s0c2 = (s0c1 / tanth + t) * 0.5
+#     sqiv = cross(s0c2, s0)
+#     th, Complexquat(sqr, quat(0.0, sqiv))
+#   end
+# end
+#
+# function angle(cq::ComplexQuaternion)
+#   th, ax = angleaxis(cq)
+#   th
+# end
+#
+# function axis(cq::ComplexQuaternion)
+#   th, ax = angleaxis(cq)
+#   ax
+# end
+
+# Implementation of exp/log and trigonometric functions
+# Based on the work in: Chappell 2014, Functions of multivector variables
+
 function exp(cq::ComplexQuaternion)
   se = Complex(cq.qr.s, cq.qi.s)
   se = exp(se)
-  cq = Cquat(quat(0.0, imag(cq.qr)), quat(0.0, imag(cq.qi)))
-  cq, th = normalizea(cq)
-  if cq.norm
-    Cquat(se) * (Cquat(cos(th)) + cq * Cquat(sin(th)))
+  cq = Complexquat(quat(0.0, imag(cq.qr)), quat(0.0, imag(cq.qi)))
+  sq = snorm(cq)
+  sq = Complex(sq.qr.s,sq.qi.s)
+  nq = snormalize(cq)
+  if abs2(sq) > 0
+    Complexquat(se) * (Complexquat(cos(sq)) + nq * Complexquat(sin(sq)))
   else
-    Cquat(se)
+    Complexquat(se)*(1+cq)
   end
 end
 
-function angleaxis(cq::ComplexQuaternion)
-  tq = cq.qi * conj(cq.qr)
-  t = [2.0 * tq.v1, 2.0 * tq.v2, 2.0 * tq.v3]
-  qrs = cq.qr.s
-  th0, s0 = angleaxis(cq.qr)
-  sqr = quat(0.0, s0)
-  if abs(abs(qrs) - one(qrs)) == 0
-    th = Complex(th0, 0.5 * abs(quat(0, t)))
-    th, Cquat(sqr)
-  else
-    th = Complex(th0, 0.5 * dot(t, s0))
-    s0c1 = cross(s0, t)
-    tanth = tan(th0)
-    s0c2 = (s0c1 / tanth + t) * 0.5
-    sqiv = cross(s0c2, s0)
-    th, Cquat(sqr, quat(0.0, sqiv))
-  end
-end
-
-function angle(cq::ComplexQuaternion)
-  th, ax = angleaxis(cq)
-  th
-end
-
-function axis(cq::ComplexQuaternion)
-  th, ax = angleaxis(cq)
-  ax
-end
-
-function exp(cq::ComplexQuaternion)
-  se = Complex(cq.qr.s, cq.qi.s)
-  se = exp(se)
-  cq = Cquat(quat(0.0, imag(cq.qr)), quat(0.0, imag(cq.qi)))
-  cq, th = normalizea(cq)
-  if cq.norm
-    Cquat(se) * (Cquat(cos(th)) + cq * Cquat(sin(th)))
-  else
-    Cquat(se)
-  end
-end
 
 function log(cq::ComplexQuaternion)
-  cq, a = normalizea(cq)
-  sl = log(a)
-  th, s = angleaxis(cq)
-  s * Cquat(th) + Cquat(sl)
+  Z = scalar(cq)
+  F = vector(cq)
+  N = snorm(cq)
+  lgN = log(N)
+  phi = arg(cq)
+  Quaternion(N,0,0,0) + phi*snormalize(F)
 end
 
 (^)(cq::ComplexQuaternion, cw::ComplexQuaternion) = exp(cw * log(cq))
@@ -183,5 +262,10 @@ function sqrt(cq::ComplexQuaternion)
   exp(0.5 * log(cq))
 end
 
-Cquatrand() = Cquat(quatrand(), quatrand())
-nCquatrand() = normalize(Cquatrand())
+# Cosine , sine functions ill-defined
+
+
+
+
+Complexquatrand() = Complexquat(quatrand(), quatrand())
+nComplexquatrand() = normalize(Complexquatrand())
