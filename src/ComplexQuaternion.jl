@@ -76,6 +76,10 @@ c4(cq::ComplexQuaternion) = Complex(cq.qr.v3,cq.qi.v3)
 (+)(cq::ComplexQuaternion,c::Complex) = ComplexQuaternion(c1(cq)+c,c2(cq)+c,c3(cq)+c,c4(cq)+c)
 (-)(cq::ComplexQuaternion,c::Complex) = ComplexQuaternion(c1(cq)-c,c2(cq)-c,c3(cq)-c,c4(cq)-c)
 
+(*)(c::Complex,cq::ComplexQuaternion) = ComplexQuaternion(c1(cq)*c,c2(cq)*c,c3(cq)*c,c4(cq)*c)
+(+)(c::Complex,cq::ComplexQuaternion) = ComplexQuaternion(c1(cq)+c,c2(cq)+c,c3(cq)+c,c4(cq)+c)
+(-)(c::Complex,cq::ComplexQuaternion) = ComplexQuaternion(c1(cq)-c,c2(cq)-c,c3(cq)-c,c4(cq)-c)
+
 
 abs2(cq::ComplexQuaternion) = cq.norm ? one(cq.qr.s) :
   abs2(cq.qr)+abs2(cq.qi)
@@ -99,8 +103,8 @@ snorm(cq::ComplexQuaternion) = cq.norm ? Complex(one(cq.qr.s)) : Complex(sqrt(sn
 
 inv(cq::ComplexQuaternion) = (snorm2(cq) != 0) ? conj(cq) / snorm2(cq) : error("Not inversible")
 
-scalar(cq::ComplexQuaternion) = (ComplexQuaternion(c1(cq),Complex(0),Complex(0),Complex(0)))
-vector(cq::ComplexQuaternion) = (ComplexQuaternion(Complex(0),c1(cq),c2(cq),c3(cq)))
+scalar(cq::ComplexQuaternion) = c1(cq) # complex-like
+vector(cq::ComplexQuaternion) = (ComplexQuaternion(Complex(0),c1(cq),c2(cq),c3(cq))) # ComplexQuaternion like
 
 
 function complexForm(cq::ComplexQuaternion)
@@ -120,7 +124,6 @@ end
 
 function hamiltonPolarForm(cq::ComplexQuaternion)
     a,xi,b = complexForm(cq)
-    a = Complex(c1(a))
     if abs(a) > 0
         theta = atan(b/a)
     else
@@ -214,7 +217,7 @@ end
 function arg(cq::ComplexQuaternion) # argument according to Chappell definition
     Z = scalar(cq)
     F = vector(cq)
-    phi = atan(Complex(snorm(F))/Complex(c1(Z)))
+    phi = atan(snorm(F)/Z)
     return phi
 end
 
@@ -251,26 +254,26 @@ end
 # Based on the work in: Chappell 2014, Functions of multivector variables
 
 function exp(cq::ComplexQuaternion)
-  se = scalar(cq)
-  se = exp(se)
-  cq = vector(cq)
-  sq = snorm(cq)
-  nq = snormalize(cq)
+  Z = scalar(cq)
+  Z = exp(Z)
+  F = vector(cq)
+  sq = snorm(F)
+  F = snormalize(F)
   if abs2(sq) > 0
-    ComplexQuaternion(se) * (ComplexQuaternion(cos(sq)) + nq * ComplexQuaternion(sin(sq)))
+    Z * (cos(sq) + F * sin(sq))
   else
-    ComplexQuaternion(se)*(1+cq)
+    Z*(1+F)
   end
 end
 
 
 function log(cq::ComplexQuaternion)
-  Z = scalar(cq)
   F = vector(cq)
+  F = snormalize(F)
   N = snorm(cq)
-  lgN = log(N)
+  N = log(N)
   phi = arg(cq)
-  Quaternion(N,0,0,0) + phi*snormalize(F)
+  N + phi*F
 end
 
 (^)(cq::ComplexQuaternion, cw::ComplexQuaternion) = exp(cw * log(cq))
