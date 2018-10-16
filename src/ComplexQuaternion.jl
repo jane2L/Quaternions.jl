@@ -45,6 +45,8 @@ promote_rule(::Type{ComplexQuaternion}, ::Type{T}) where {T <: Real} = ComplexQu
 promote_rule(::Type{ComplexQuaternion{T}}, ::Type{S}) where {T <: Real, S <: Real} = ComplexQuaternion{promote_type(T, S)}
 promote_rule(::Type{Quaternion{T}}, ::Type{ComplexQuaternion{S}}) where {T <: Real, S <: Real} = ComplexQuaternion{promote_type(T, S)}
 promote_rule(::Type{ComplexQuaternion{T}}, ::Type{ComplexQuaternion{S}}) where {T <: Real, S <: Real} = ComplexQuaternion{promote_type(T, S)}
+promote_rule(::Type{ComplexQuaternion{T}}, ::Type{S}) where {T <: Real,S <: Complex} = ComplexQuaternion{T}
+promote_rule(::Type{ComplexQuaternion}, ::Type{T}) where {T <: Complex} = ComplexQuaternion
 
 Cquat(q1, q2, n=false) = ComplexQuaternion(q1, q2, n)
 Cquat(d1, d2, d3, d4, n=false) = ComplexQuaternion(d1, d2, d3, d4, n)
@@ -71,14 +73,14 @@ c4(cq::ComplexQuaternion) = Complex(cq.qr.v3,cq.qi.v3)
 
 (/)(cq::ComplexQuaternion,q::Quaternion) = ComplexQuaternion(cq.qr/q,cq.qi/q)
 
-(*)(cq::ComplexQuaternion, cr::ComplexQuaternion) = ComplexQuaternion(cq.qr*cr.qr-cq.qi*cr.qi,cq.qr*cr.qi+ cq.qi*cr.qr)
-(*)(cq::ComplexQuaternion,c::Complex) = ComplexQuaternion(c1(cq)*c,c2(cq)*c,c3(cq)*c,c4(cq)*c)
-(+)(cq::ComplexQuaternion,c::Complex) = ComplexQuaternion(c1(cq)+c,c2(cq)+c,c3(cq)+c,c4(cq)+c)
-(-)(cq::ComplexQuaternion,c::Complex) = ComplexQuaternion(c1(cq)-c,c2(cq)-c,c3(cq)-c,c4(cq)-c)
+#(*)(cq::ComplexQuaternion, cr::ComplexQuaternion) = ComplexQuaternion(cq.qr*cr.qr-cq.qi*cr.qi,cq.qr*cr.qi+ cq.qi*cr.qr)
+#(*)(cq::ComplexQuaternion,c::Complex) = ComplexQuaternion(c1(cq)*c,c2(cq)*c,c3(cq)*c,c4(cq)*c)
+#(+)(cq::ComplexQuaternion,c::Complex) = ComplexQuaternion(c1(cq)+c,c2(cq)+c,c3(cq)+c,c4(cq)+c)
+#(-)(cq::ComplexQuaternion,c::Complex) = ComplexQuaternion(c1(cq)-c,c2(cq)-c,c3(cq)-c,c4(cq)-c)
 
-(*)(c::Complex,cq::ComplexQuaternion) = ComplexQuaternion(c1(cq)*c,c2(cq)*c,c3(cq)*c,c4(cq)*c)
-(+)(c::Complex,cq::ComplexQuaternion) = ComplexQuaternion(c1(cq)+c,c2(cq)+c,c3(cq)+c,c4(cq)+c)
-(-)(c::Complex,cq::ComplexQuaternion) = ComplexQuaternion(c1(cq)-c,c2(cq)-c,c3(cq)-c,c4(cq)-c)
+#(*)(c::Complex,cq::ComplexQuaternion) = ComplexQuaternion(c1(cq)*c,c2(cq)*c,c3(cq)*c,c4(cq)*c)
+#(+)(c::Complex,cq::ComplexQuaternion) = ComplexQuaternion(c1(cq)+c,c2(cq)+c,c3(cq)+c,c4(cq)+c)
+#(-)(c::Complex,cq::ComplexQuaternion) = ComplexQuaternion(c1(cq)-c,c2(cq)-c,c3(cq)-c,c4(cq)-c)
 
 
 abs2(cq::ComplexQuaternion) = cq.norm ? one(cq.qr.s) :
