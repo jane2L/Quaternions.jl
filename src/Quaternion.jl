@@ -188,10 +188,10 @@ end
 function atan(q::Quaternion)
     p = argq(q)
     return (p*atanh(q*p))
+end
 
 # ** END TRIGONOMETRIC ADDITION **
 
-function a
 
 (^)(q::Quaternion, w::Quaternion) = exp(w * log(q))
 

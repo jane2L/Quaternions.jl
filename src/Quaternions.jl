@@ -3,7 +3,7 @@ __precompile__()
 module Quaternions
 
   import Base: +, -, *, /, ^
-  import Base: abs, abs2, angle, conj, cos, exp, inv, isfinite, log, real, sin, sqrt
+  import Base: abs, abs2, angle, conj, cos, exp, inv, isfinite, log, real, sin, sqrt, atan, tan
   import Base: convert, promote_rule
   import LinearAlgebra: norm, normalize,dot,cross
 
@@ -14,12 +14,33 @@ module Quaternions
 
   export Quaternion
   export quat
+
+  # ** ComplexQuaternion **
   export ComplexQuaternion
   export Cquat
   export snorm
   export snorm2
+  export conj
+  export complexconj
+  export reversioninvolution
+  export inv
+  export scalar
+  export vector
+  export complexForm
+  export complexFormAxis
+  export complexPolarForm
+  export hamiltonPolarForm
+  export hamiltonPolarAmplitude
+  export snormalize
+  export arg
+  export I 
+
+
+
+# ** Octonion **
   export Octonion
   export octo
+
   export DualQuaternion
   export dualquat
   export angleaxis
