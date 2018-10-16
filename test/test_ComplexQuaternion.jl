@@ -43,4 +43,6 @@ show(arg(a))
 println("\n")
 
 
+#@test typeof(hamiltonPolarAmplitude(a)) = Complex
+
 a/snorm(a)

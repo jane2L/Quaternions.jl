@@ -3,7 +3,7 @@ __precompile__()
 module Quaternions
 
   import Base: +, -, *, /, ^
-  import Base: abs, abs2, angle, conj, cos, exp, inv, isfinite, log, real, sin, sqrt, atan, tan
+  import Base: abs, abs2, angle, conj, cos, exp, inv, isfinite, log, real,imag, sin, sqrt, atan, tan
   import Base: convert, promote_rule
   import LinearAlgebra: norm, normalize,dot,cross
 
@@ -33,7 +33,7 @@ module Quaternions
   export hamiltonPolarAmplitude
   export snormalize
   export arg
-  export I 
+  export I
 
 
 

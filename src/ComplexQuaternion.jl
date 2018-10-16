@@ -52,9 +52,6 @@ Cquat(x) = ComplexQuaternion(x)
 
 function Base.show(io::IO, cq::ComplexQuaternion)
   print(io,cq.qr.s ," + ", cq.qr.v1, "i + ", cq.qr.v2 ,"j + " ,cq.qr.v3,"k + I(",cq.qi.s, " + ", cq.qi.v1,"i + " ,cq.qi.v2,"j + ", cq.qi.v3,"k ) \n" )
- # print(io, " + I ")
- # show(io, cq.qi)
-#  print(io)
 end
 
 qr(cq::ComplexQuaternion) = cq.qr
@@ -64,26 +61,21 @@ c2(cq::ComplexQuaternion) = Complex(cq.qr.v1,cq.qi.v1)
 c3(cq::ComplexQuaternion) = Complex(cq.qr.v2,cq.qi.v2)
 c4(cq::ComplexQuaternion) = Complex(cq.qr.v3,cq.qi.v3)
 
-(/)(cq::ComplexQuaternion, x::Real) = ComplexQuaternion(cq.qr / x, cq.qi / x)
+(/)(cq::ComplexQuaternion, x::Real) = ComplexQuaternion(cq.qr/x, cq.qi/x)
 
 (/)(cq::ComplexQuaternion, d::Complex) =
   ComplexQuaternion(c1(cq) / d,
                   c2(cq) / d,
                   c3(cq) / d,
                   c3(cq) / d)
-(/) (cq::ComplexQuaterion,q::Quaternion) = ComplexQuaternion(cq.qr/q,cq.qi/q)
 
-(*) (cq::ComplexQuaternion, x::Real) = ComplexQuaternion(cq.qr*x,cq.qi*x)
-(*) (cq::ComplexQuaternion, d::Complex) = ComplexQuaternion(c1(cq)*d,c2(cq)*d,c3(cq)*d,c4(cq)*d)
-(*) (cq::ComplexQuaterion,q::Quaternion) = ComplexQuaternion(cq.qr*q,cq.qi*q)
+(/)(cq::ComplexQuaternion,q::Quaternion) = ComplexQuaternion(cq.qr/q,cq.qi/q)
 
-(+) (cq::ComplexQuaternion, x::Real) = ComplexQuaternion(cq.qr+x,cq.qi)
-(+) (cq::ComplexQuaternion,d::Complex) = ComplexQuaternion(c1(cq)+d,c2(cq),c3(cq),c4(cq))
-(+) (cq::ComplexQuaterion,q::Quaternion) = ComplexQuaternion(cq.qr+q,cq.qi)
+(*)(cq::ComplexQuaternion, cr::ComplexQuaternion) = ComplexQuaternion(cq.qr*cr.qr-cq.qi*cr.qi,cq.qr*cr.qi+ cq.qi*cr.qr)
+(*)(cq::ComplexQuaternion,c::Complex) = ComplexQuaternion(c1(cq)*c,c2(cq)*c,c3(cq)*c,c4(cq)*c)
+(+)(cq::ComplexQuaternion,c::Complex) = ComplexQuaternion(c1(cq)+c,c2(cq)+c,c3(cq)+c,c4(cq)+c)
+(-)(cq::ComplexQuaternion,c::Complex) = ComplexQuaternion(c1(cq)-c,c2(cq)-c,c3(cq)-c,c4(cq)-c)
 
-(-) (cq::ComplexQuaternion, x::Real) = ComplexQuaternion(cq.qr-x,cq.qi)
-(-) (cq::ComplexQuaternion,d::Complex) = ComplexQuaternion(c1(cq)-d,c2(cq),c3(cq),c4(cq))
-(-) (cq::ComplexQuaterion,q::Quaternion) = ComplexQuaternion(cq.qr-q,cq.qi)
 
 abs2(cq::ComplexQuaternion) = cq.norm ? one(cq.qr.s) :
   abs2(cq.qr)+abs2(cq.qi)
