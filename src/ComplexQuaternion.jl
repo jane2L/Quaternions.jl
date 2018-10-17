@@ -104,7 +104,7 @@ snorm(cq::ComplexQuaternion) = cq.norm ? Complex(one(cq.qr.s)) : Complex(sqrt(sn
 inv(cq::ComplexQuaternion) = (snorm2(cq) != 0) ? conj(cq) / snorm2(cq) : error("Not inversible")
 
 scalar(cq::ComplexQuaternion) = c1(cq) # complex-like
-vector(cq::ComplexQuaternion) = (ComplexQuaternion(Complex(0),c1(cq),c2(cq),c3(cq))) # ComplexQuaternion like
+vector(cq::ComplexQuaternion) = (ComplexQuaternion(Complex(0),c2(cq),c3(cq),c4(cq))) # ComplexQuaternion like
 
 
 function complexForm(cq::ComplexQuaternion)
@@ -142,13 +142,17 @@ end
 
 function complexPolarForm(cq::ComplexQuaternion)
     if abs2(cq.qr) > 0
-        angle = 1/cq.qr*cq.qi
-        psi = atan(Quaternion(angle))
-        Q = (cq.qr +cq.qi)/(cos(psi)+sin(psi))
+        angle = -1/cq.qr*cq.qi # TODO chek sign error (minus sign generalizes complex polar form, but is not in the definition)
+        psi = atan(angle)
+        Q = cq*exp(-I*psi)
+        if abs(Q.qi)>0
+            error("non-quaternionic amplitude not allowed")
+        else
+            Q = Q.qr
+        end
         return (Q,psi)
     else
-        cq = cq#TODO
-        return (0,0)
+        return (cq.qi,pi/2)
     end
 
 end

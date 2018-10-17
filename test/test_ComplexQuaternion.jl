@@ -1,5 +1,24 @@
 using ..Quaternions
 
+
+let # test compatibility of complexPolarForm with complex and quaternion polar forms.
+    theta = 2*pi*randn(1)
+    alpha = randn(10)
+    c = alpha*exp(im*theta)
+    cq = complexQuaternion(c,Complex(0),Complex(0),Complex(0))
+    Q,psi = complexPolarForm(cq)
+    @test Q ≈  alpha  && psi ≈ theta
+    q = Quaternion(randn(-10,10),randn(-10,10),randn(-10,10),randn(-10,10))
+    cq = complexQuaternion(q,Quaternion(0))
+    Q,psi = complexPolarForm(cq)
+    @test Q ≈  q  && psi ≈ Quaternion(0)
+    cq = complexQuaternion(Quaternion(0),q)
+    Q,psi = complexPolarForm(cq)
+    @test Q ≈  q  && psi ≈ Quaternion(pi/2,0,0,0)
+end
+
+
+
 a = ComplexQuaternion(2+2im,3+1im,4+2im,5+0im)
 println("show a: ")
 show(a)
