@@ -73,15 +73,6 @@ c4(cq::ComplexQuaternion) = Complex(cq.qr.v3,cq.qi.v3)
 
 (/)(cq::ComplexQuaternion,q::Quaternion) = ComplexQuaternion(cq.qr/q,cq.qi/q)
 
-#(*)(cq::ComplexQuaternion, cr::ComplexQuaternion) = ComplexQuaternion(cq.qr*cr.qr-cq.qi*cr.qi,cq.qr*cr.qi+ cq.qi*cr.qr)
-#(*)(cq::ComplexQuaternion,c::Complex) = ComplexQuaternion(c1(cq)*c,c2(cq)*c,c3(cq)*c,c4(cq)*c)
-#(+)(cq::ComplexQuaternion,c::Complex) = ComplexQuaternion(c1(cq)+c,c2(cq)+c,c3(cq)+c,c4(cq)+c)
-#(-)(cq::ComplexQuaternion,c::Complex) = ComplexQuaternion(c1(cq)-c,c2(cq)-c,c3(cq)-c,c4(cq)-c)
-
-#(*)(c::Complex,cq::ComplexQuaternion) = ComplexQuaternion(c1(cq)*c,c2(cq)*c,c3(cq)*c,c4(cq)*c)
-#(+)(c::Complex,cq::ComplexQuaternion) = ComplexQuaternion(c1(cq)+c,c2(cq)+c,c3(cq)+c,c4(cq)+c)
-#(-)(c::Complex,cq::ComplexQuaternion) = ComplexQuaternion(c1(cq)-c,c2(cq)-c,c3(cq)-c,c4(cq)-c)
-
 
 abs2(cq::ComplexQuaternion) = cq.norm ? one(cq.qr.s) :
   abs2(cq.qr)+abs2(cq.qi)
@@ -136,8 +127,7 @@ function hamiltonPolarForm(cq::ComplexQuaternion)
 end
 
 function hamiltonPolarAmplitude(cq::ComplexQuaternion)
-    R,xi,theta = hamiltonPolarForm(cq)
-    cq = R
+    cq = hamiltonPolarForm(cq)[1]
 end
 
 
@@ -159,6 +149,9 @@ function complexPolarForm(cq::ComplexQuaternion)
 
 end
 
+function complexPolarAmplitude(cq::ComplexQuaternion)
+    cq = complexPolarForm(cq)[1]
+end
 
 
 
